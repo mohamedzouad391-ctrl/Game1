@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لعبة كسر الطوب - Moumen ZwD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            overflow: hidden;
+        }
+        
+        .game-container {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 3px solid #ffcc00;
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            color: #ffcc00;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+            margin-bottom: 12px;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            font-size: 0.9rem;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        canvas {
+            display: block;
+            border: 2px solid #444;
+            border-radius: 8px;
+            background: #0a1c30;
+            margin: 0 auto;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+            width: 100%;
+            touch-action: none;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        button {
+            background: linear-gradient(to bottom, #ffcc00, #ff9900);
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            font-size: 0.9rem;
+            min-width: 100px;
+        }
+        
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .level-select {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .level-btn {
+            padding: 6px 12px;
+            background: #333;
+            color: white;
+            border: 1px solid #666;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.8rem;
+        }
+        
+        .level-btn.active {
+            background: #ffcc00;
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 0 10px #ffcc00;
+        }
+        
+        .instructions {
+            margin-top: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            font-size: 0.8rem;
+        }
+        
+        .instructions h3 {
+            color: #ffcc00;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .mobile-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding: 0 10px;
+        }
+        
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 204, 0, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #000;
+            user-select: none;
+            touch-action: none;
+        }
+        
+        /* منع تحديد النص على الهواتف */
+        .no-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        @media (max-width: 400px) {
+            h1 {
+                font-size: 1.3rem;
+            }
+            
+            button {
+                padding: 7px 14px;
+                font-size: 0.85rem;
+                min-width: 90px;
+            }
+            
+            .control-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body class="no-select">
+    <div class="game-container">
+        <h1>لعبة كسر الطوب - Moumen ZwD</h1>
+        
+        <div class="game-info">
+            <div class="info-item">
+                <span>النقاط: </span>
+                <span id="score">0</span>
+            </div>
+            <div class="info-item">
+                <span>الحياة: </span>
+                <span id="lives">3</span>
+            </div>
+            <div class="info-item">
+                <span>المستوى: </span>
+                <span id="level">1</span>
+            </div>
+        </div>
+        
+        <canvas id="gameCanvas"></canvas>
+        
+        <div class="mobile-controls">
+            <div class="control-btn" id="leftBtn">◀</div>
+            <div class="control-btn" id="rightBtn">▶</div>
+        </div>
+        
+        <div class="controls">
+            <button id="startBtn">بدء اللعبة</button>
+            <button id="restartBtn">إعادة開始</button>
+        </div>
+        
+        <div class="level-select">
+            <div class="level-btn active" data-level="1">سهل</div>
+            <div class="level-btn" data-level="2">متوسط</div>
+            <div class="level-btn" data-level="3">صعب</div>
+        </div>
+        
+        <div class="instructions">
+            <h3>تعليمات اللعبة</h3>
+            <p>حرك المضرب باستخدام الأزرار أو السحب بإصبعك على الشاشة</p>
+        </div>
+    </div>
+
+    <script>
+        // العناصر الأساسية
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const scoreDisplay = document.getElementById('score');
+        const livesDisplay = document.getElementById('lives');
+        const levelDisplay = document.getElementById('level');
+        const levelButtons = document.querySelectorAll('.level-btn');
+        const leftBtn = document.getElementById('leftBtn');
+        const rightBtn = document.getElementById('rightBtn');
+        
+        // ضبط حجم Canvas ليتناسب مع الشاشة
+        function resizeCanvas() {
+            const maxWidth = Math.min(500, window.innerWidth - 40);
+            const ratio = 4/3; // نسبة الطول إلى العرض
+            
+            canvas.width = maxWidth;
+            canvas.height = maxWidth / ratio;
+            
+            // إعادة تعيين مواقع العناصر عند تغيير الحجم
+            if (gameRunning) {
+                draw();
+            } else {
+                initBricks();
+                drawBricks();
+                drawBall();
+                drawPaddle();
+            }
+        }
+        
+        // متغيرات اللعبة
+        let gameRunning = false;
+        let score = 0;
+        let lives = 3;
+        let level = 1;
+        let animationId;
+        let paddleSpeed = 0;
+        
+        // متغيرات الكرة
+        let ballX;
+        let ballY;
+        let ballSpeedX;
+        let ballSpeedY;
+        let ballRadius = 8;
+        
+        // متغيرات المضرب
+        let paddleHeight = 12;
+        let paddleWidth = 80;
+        let paddleX;
+        
+        // متغيرات الطوب
+        let brickRowCount;
+        let brickColumnCount;
+        let brickWidth;
+        let brickHeight = 18;
+        let brickPadding = 8;
+        let brickOffsetTop = 40;
+        let brickOffsetLeft = 15;
+        let bricks = [];
+        
+        // ألوان الطوب حسب المستوى
+        const brickColorsByLevel = {
+            1: ["#FF5252", "#FF4081", "#E040FB", "#7C4DFF"],
+            2: ["#536DFE", "#448AFF", "#40C4FF", "#18FFFF", "#64FFDA"],
+            3: ["#69F0AE", "#B2FF59", "#EEFF41", "#FFFF00", "#FFD600", "#FF9800"]
+        };
+        
+        // تهيئة اللعبة حسب المستوى
+        function initGame() {
+            // تحديد صعوبة المستوى
+            switch(level) {
+                case 1:
+                    brickRowCount = 3;
+                    brickColumnCount = 5;
+                    ballSpeedX = 3;
+                    ballSpeedY = -3;
+                    break;
+                case 2:
+                    brickRowCount = 4;
+                    brickColumnCount = 6;
+                    ballSpeedX = 4;
+                    ballSpeedY = -4;
+                    break;
+                case 3:
+                    brickRowCount = 5;
+                    brickColumnCount = 7;
+                    ballSpeedX = 5;
+                    ballSpeedY = -5;
+                    break;
+            }
+            
+            brickWidth = (canvas.width - brickOffsetLeft * 2 - brickPadding * (brickColumnCount - 1)) / brickColumnCount;
+            
+            // تعيين المواقع الأولية
+            ballX = canvas.width / 2;
+            ballY = canvas.height - 30;
+            paddleX = (canvas.width - paddleWidth) / 2;
+            
+            // تهيئة الطوب
+            initBricks();
+        }
+        
+        // تهيئة الطوب
+        function initBricks() {
+            bricks = [];
+            const colors = brickColorsByLevel[level];
+            
+            for (let c = 0; c < brickColumnCount; c++) {
+                bricks[c] = [];
+                for (let r = 0; r < brickRowCount; r++) {
+                    const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
+                    const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
+                    
+                    bricks[c][r] = { 
+                        x: brickX, 
+                        y: brickY, 
+                        status: 1,
+                        color: colors[r % colors.length]
+                    };
+                }
+            }
+        }
+        
+        // رسم الكرة
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = "#ff3366";
+            ctx.fill();
+            ctx.closePath();
+        }
+        
+        // رسم المضرب
+        function drawPaddle() {
+            ctx.beginPath();
+            ctx.roundRect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight, 6);
+            ctx.fillStyle = "#00ccff";
+            ctx.fill();
+            ctx.closePath();
+        }
+        
+        // رسم الطوب
+        function drawBricks() {
+            for (let c = 0; c < brickColumnCount; c++) {
+                for (let r = 0; r < brickRowCount; r++) {
+                    if (bricks[c][r].status === 1) {
+                        ctx.beginPath();
+                        ctx.roundRect(bricks[c][r].x, bricks[c][r].y, brickWidth, brickHeight, 4);
+                        ctx.fillStyle = bricks[c][r].color;
+                        ctx.fill();
+                        ctx.closePath();
+                    }
+                }
+            }
+        }
+        
+        // كشف التصادم مع الطوب
+        function collisionDetection() {
+            for (let c = 0; c < brickColumnCount; c++) {
+                for (let r = 0; r < brickRowCount; r++) {
+                    const b = bricks[c][r];
+                    if (b.status === 1) {
+                        if (ballX > b.x && ballX < b.x + brickWidth && 
+                            ballY > b.y && ballY < b.y + brickHeight) {
+                            ballSpeedY = -ballSpeedY;
+                            b.status = 0;
+                            score += 10 * level;
+                            scoreDisplay.textContent = score;
+                            
+                            // إذا كسر جميع الطوب
+                            if (score === brickRowCount * brickColumnCount * 10 * level) {
+                                setTimeout(() => {
+                                    alert(`مبروك! لقد أكملت المستوى ${level} بنقاط: ${score}`);
+                                    if (level < 3) {
+                                        changeLevel(level + 1);
+                                    } else {
+                                        resetGame();
+                                    }
+                                }, 500);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // الرسم الرئيسي للعبة
+        function draw() {
+            // مسح canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // رسم عناصر اللعبة
+            drawBricks();
+            drawBall();
+            drawPaddle();
+            
+            // كشف التصادم مع الطوب
+            collisionDetection();
+            
+            // كشف التصادم مع الجدران
+            if (ballX + ballSpeedX > canvas.width - ballRadius || ballX + ballSpeedX < ballRadius) {
+                ballSpeedX = -ballSpeedX;
+            }
+            
+            if (ballY + ballSpeedY < ballRadius) {
+                ballSpeedY = -ballSpeedY;
+            } else if (ballY + ballSpeedY > canvas.height - ballRadius) {
+                // كشف التصادم مع المضرب
+                if (ballX > paddleX && ballX < paddleX + paddleWidth) {
+                    // تغيير زاوية الكرة حسب مكان الاصطدام بالمضرب
+                    const hitPoint = (ballX - paddleX) / paddleWidth;
+                    ballSpeedX = 7 * (hitPoint - 0.5);
+                    ballSpeedY = -Math.abs(ballSpeedY);
+                } else {
+                    // فقدان الحياة
+                    lives--;
+                    livesDisplay.textContent = lives;
+                    
+                    if (lives <= 0) {
+                        gameRunning = false;
+                        cancelAnimationFrame(animationId);
+                        setTimeout(() => {
+                            alert("Game Over! نقاطك: " + score);
+                            resetGame();
+                        }, 500);
+                    } else {
+                        // إعادة تعيين الكرة
+                        ballX = canvas.width / 2;
+                        ballY = canvas.height - 30;
+                        ballSpeedX = 4 * (level * 0.7);
+                        ballSpeedY = -4 * (level * 0.7);
+                        paddleX = (canvas.width - paddleWidth) / 2;
+                    }
+                }
+            }
+            
+            // تحريك الكرة
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+            
+            // تحريك المضرب
+            if (paddleSpeed !== 0) {
+                paddleX += paddleSpeed;
+                
+                // منع المضرب من الخروج من الشاشة
+                if (paddleX < 0) {
+                    paddleX = 0;
+                } else if (paddleX + paddleWidth > canvas.width) {
+                    paddleX = canvas.width - paddleWidth;
+                }
+            }
+            
+            // استمرار اللعبة
+            if (gameRunning) {
+                animationId = requestAnimationFrame(draw);
+            }
+        }
+        
+        // تحريك المضرب بالسحب بالإصبع
+        function touchMoveHandler(e) {
+            if (!gameRunning) return;
+            
+            e.preventDefault();
+            const touch = e.touches[0];
+            const relativeX = touch.clientX - canvas.getBoundingClientRect().left;
+            
+            if (relativeX > 0 && relativeX < canvas.width) {
+                paddleX = relativeX - paddleWidth / 2;
+                
+                // منع المضرب من الخروج من الشاشة
+                if (paddleX < 0) {
+                    paddleX = 0;
+                } else if (paddleX + paddleWidth > canvas.width) {
+                    paddleX = canvas.width - paddleWidth;
+                }
+            }
+        }
+        
+        // تغيير مستوى الصعوبة
+        function changeLevel(newLevel) {
+            level = newLevel;
+            levelDisplay.textContent = level;
+            
+            // تحديث الأزرار
+            levelButtons.forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.dataset.level) === level);
+            });
+            
+            // إعادة تعيين اللعبة
+            resetGame();
+        }
+        
+        // إعادة تعيين اللعبة
+        function resetGame() {
+            gameRunning = false;
+            cancelAnimationFrame(animationId);
+            score = 0;
+            lives = 3;
+            scoreDisplay.textContent = score;
+            livesDisplay.textContent = lives;
+            initGame();
+            
+            // إعادة الرسم
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBricks();
+            drawBall();
+            drawPaddle();
+            
+            startBtn.textContent = "بدء اللعبة";
+        }
+        
+        // بدء/إيقاف اللعبة
+        function toggleGame() {
+            if (!gameRunning) {
+                gameRunning = true;
+                draw();
+                startBtn.textContent = "إيقاف اللعبة";
+            } else {
+                gameRunning = false;
+                cancelAnimationFrame(animationId);
+                startBtn.textContent = "استئناف اللعبة";
+            }
+        }
+        
+        // إعداد event listeners
+        function setupEventListeners() {
+            // السحب بالإصبع للتحكم بالمضرب
+            canvas.addEventListener('touchmove', touchMoveHandler, { passive: false });
+            
+            // أزرار التحكم الافتراضية
+            startBtn.addEventListener('click', toggleGame);
+            restartBtn.addEventListener('click', resetGame);
+            
+            // أزرار التحكم للموبايل
+            leftBtn.addEventListener('touchstart', () => paddleSpeed = -6);
+            leftBtn.addEventListener('touchend', () => paddleSpeed = 0);
+            rightBtn.addEventListener('touchstart', () => paddleSpeed = 6);
+            rightBtn.addEventListener('touchend', () => paddleSpeed = 0);
+            
+            // منع سلوك اللمس الافتراضي
+            document.addEventListener('touchmove', function(e) {
+                if (e.target === canvas || e.target === leftBtn || e.target === rightBtn) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+            
+            // تغيير المستوى
+            levelButtons.forEach(btn => {
+                btn.addEventListener('click', () => changeLevel(parseInt(btn.dataset.level)));
+            });
+            
+            // إعادة ضبط حجم canvas عند تغيير حجم النافذة
+            window.addEventListener('resize', resizeCanvas);
+        }
+        
+        // تهيئة اللعبة
+        function init() {
+            // دعم رسم الزوايا المستديرة
+            if (!CanvasRenderingContext2D.prototype.roundRect) {
+                CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+                    if (width < 2 * radius) radius = width / 2;
+                    if (height < 2 * radius) radius = height / 2;
+                    this.beginPath();
+                    this.moveTo(x + radius, y);
+                    this.arcTo(x + width, y, x + width, y + height, radius);
+                    this.arcTo(x + width, y + height, x, y + height, radius);
+                    this.arcTo(x, y + height, x, y, radius);
+                    this.arcTo(x, y, x + width, y, radius);
+                    this.closePath();
+                    return this;
+                };
+            }
+            
+            resizeCanvas();
+            setupEventListeners();
+            initGame();
+        }
+        
+        // بدء التهيئة عند تحميل الصفحة
+        window.onload = init;
+    </script>
+</body>
+</html>
