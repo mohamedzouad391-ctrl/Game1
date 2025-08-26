@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moumen ZwD - لغز مواقف السيارات</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f9c74f;
+            --danger: #f94144;
+            --road: #2c3e50;
+            --road-line: #ecf0f1;
+            --car-player: #e74c3c;
+            --car-horizontal: #3498db;
+            --car-vertical: #2ecc71;
+            --grid-bg: #34495e;
+            --body-bg: #1a1a2e;
+            --text-color: #ecf0f1;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, system-ui, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--body-bg), #0f3460);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        body::before {
+            content: "Moumen ZwD";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 8rem;
+            font-weight: 900;
+            opacity: 0.03;
+            z-index: -1;
+            color: var(--primary);
+            pointer-events: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--success);
+            margin-bottom: 30px;
+        }
+
+        .level-selection {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--border-radius);
+        }
+
+        @media (max-width: 768px) {
+            .level-selection {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .level-btn {
+            padding: 15px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .level-btn.easy {
+            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+        }
+
+        .level-btn.medium {
+            background: linear-gradient(135deg, #f9c74f, #f9844a);
+        }
+
+        .level-btn.hard {
+            background: linear-gradient(135deg, #f94144, #f72585);
+        }
+
+        .level-btn.extreme {
+            background: linear-gradient(135deg, #7209b7, #3a0ca3);
+        }
+
+        .level-btn.selected {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .level-icon {
+            font-size: 1.5rem;
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .game-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .main-game {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-game::after {
+            content: "Moumen ZwD";
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 0.8rem;
+            opacity: 0.2;
+            color: var(--primary);
+        }
+
+        .game-board {
+            background: var(--grid-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            border: 4px solid #3a0ca3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .parking-grid {
+            display: grid;
+            gap: 4px;
+            position: relative;
+        }
+
+        .grid-cell {
+            background: var(--road);
+            border: 2px solid var(--road-line);
+            border-radius: 4px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .grid-cell.exit {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border: 2px dashed #ecf0f1;
+        }
+
+        .car {
+            position: absolute;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            z-index: 2;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .car.player {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border: 2px solid #fff;
+        }
+
+        .car.horizontal {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border: 2px solid #fff;
+        }
+
+        .car.vertical {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border: 2px solid #fff;
+        }
+
+        .car.selected {
+            box-shadow: 0 0 15px 5px var(--warning);
+            transform: scale(1.05);
+        }
+
+        .car.wheels::before, .car.wheels::after {
+            content: '';
+            position: absolute;
+            background: #2c3e50;
+            border-radius: 50%;
+            width: 8px;
+            height: 8px;
+        }
+
+        .car.horizontal.wheels::before {
+            bottom: 2px;
+            left: 5px;
+        }
+
+        .car.horizontal.wheels::after {
+            bottom: 2px;
+            right: 5px;
+        }
+
+        .car.vertical.wheels::before {
+            right: 2px;
+            top: 5px;
+        }
+
+        .car.vertical.wheels::after {
+            right: 2px;
+            bottom: 5px;
+        }
+
+        .difficulty-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .difficulty-badge.easy {
+            background: var(--success);
+        }
+
+        .difficulty-badge.medium {
+            background: var(--warning);
+        }
+
+        .difficulty-badge.hard {
+            background: var(--danger);
+        }
+
+        .difficulty-badge.extreme {
+            background: var(--secondary);
+        }
+
+        .sidebar {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .score-board {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .score-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--success);
+        }
+
+        .stats-container {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .stat {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--warning);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-color);
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, var(--accent), #b5179e);
+        }
+
+        .btn-theme {
+            background: linear-gradient(135deg, var(--warning), #f9844a);
+        }
+
+        .btn-hint {
+            background: linear-gradient(135deg, #7209b7, #560bad);
+        }
+
+        .mobile-controls {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        .mobile-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            user-select: none;
+        }
+
+        .mobile-btn:active {
+            transform: scale(0.95);
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+        }
+
+        .instructions {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .instructions h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .instructions-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .instructions-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .instructions-list li:last-child {
+            border-bottom: none;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .footer-text {
+            color: var(--success);
+            font-size: 0.9rem;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .celebrate {
+            animation: celebrate 0.5s ease infinite;
+        }
+
+        .shake {
+            animation: shake 0.3s ease;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 300px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification.success {
+            border-right: 4px solid var(--success);
+        }
+
+        .notification.error {
+            border-right: 4px solid var(--danger);
+        }
+
+        .moumen-signature {
+            text-align: center;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .signature {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .sound-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            justify-content: center;
+        }
+
+        .sound-label {
+            font-size: 0.8rem;
+            color: var(--text-color);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 45px;
+            height: 22px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ccc;
+            transition: .4s;
+            border-radius: 22px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: var(--success);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(23px);
+        }
+
+        .level-indicator {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 1.1rem;
+            color: var(--warning);
+            font-weight: bold;
+        }
+
+        .mobile-warning {
+            text-align: center;
+            color: var(--warning);
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-warning {
+                display: block;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 2.2rem;
+            }
+            .subtitle {
+                font-size: 1rem;
+            }
+            .mobile-btn {
+                padding: 10px;
+                font-size: 1rem;
+            }
+        }
+
+        .hint-overlay {
+            position: absolute;
+            background: rgba(255, 204, 0, 0.3);
+            border: 2px dashed var(--warning);
+            border-radius: 4px;
+            z-index: 1;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="logo">Moumen ZwD</h1>
+            <p class="subtitle">لغز مواقف السيارات - اختبر ذكاءك!</p>
+        </header>
+
+        <div class="level-selection">
+            <button class="level-btn easy selected" data-level="easy">
+                <span class="level-icon">🚗</span>
+                <span>سهل</span>
+                <small>للمبتدئين</small>
+            </button>
+            <button class="level-btn medium" data-level="medium">
+                <span class="level-icon">🚙</span>
+                <span>متوسط</span>
+                <small>تحدي لطيف</small>
+            </button>
+            <button class="level-btn hard" data-level="hard">
+                <span class="level-icon">🚕</span>
+                <span>صعب</span>
+                <small>للمحترفين</small>
+            </button>
+            <button class="level-btn extreme" data-level="extreme">
+                <span class="level-icon">🔥</span>
+                <span>صعب جداً</span>
+                <small>تحدي حقيقي!</small>
+            </button>
+        </div>
+
+        <div class="game-container">
+            <div class="main-game">
+                <h2>ساحة الانتظار</h2>
+                <div class="level-indicator" id="levelIndicator">المستوى: 1 - سهل</div>
+                <div class="mobile-warning">💡 انقر على سيارة ثم استخدم الأسهم لتحريكها</div>
+                
+                <div class="game-board">
+                    <div class="difficulty-badge easy" id="difficultyBadge">سهل</div>
+                    <div class="parking-grid" id="parkingGrid">
+                        <!-- سيتم إنشاء الشبكة ديناميكياً -->
+                    </div>
+                </div>
+                
+                <div class="mobile-controls">
+                    <button class="mobile-btn" id="upBtn">↑</button>
+                    <button class="mobile-btn" id="leftBtn">←</button>
+                    <button class="mobile-btn" id="rightBtn">→</button>
+                    <button class="mobile-btn" id="downBtn">↓</button>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="score-board">
+                    <h3 class="score-title">التحركات</h3>
+                    <div class="score-value" id="moves">0</div>
+                </div>
+                
+                <div class="stats-container">
+                    <h3>الإحصائيات</h3>
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="stat-value" id="level">1</div>
+                            <div class="stat-label">📊 المستوى</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="time">60</div>
+                            <div class="stat-label">⏱️ الوقت</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="cars">6</div>
+                            <div class="stat-label">🚗 السيارات</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="hints">3</div>
+                            <div class="stat-label">💡 التلميحات</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn" id="startBtn">
+                        <span>▶</span> بدء اللعبة
+                    </button>
+                    <button class="btn btn-reset" id="resetBtn">
+                        <span>↻</span> إعادة开始
+                    </button>
+                    <button class="btn btn-hint" id="hintBtn">
+                        <span>💡</span> تلميح
+                    </button>
+                    <button class="btn btn-theme" id="themeBtn">
+                        <span>🌙</span> تغيير المظهر
+                    </button>
+                    
+                    <div class="sound-toggle">
+                        <span class="sound-label">🔊 الصوت</span>
+                        <label class="switch">
+                            <input type="checkbox" id="soundToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="moumen-signature">
+                    <p>تم إنشاء هذه اللعبة بواسطة <span class="signature">Moumen ZwD</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h2>كيفية اللعب</h2>
+            <ul class="instructions-list">
+                <li><span>🎯</span> هدفك: إخراج السيارة الحمراء من الموقف</li>
+                <li><span>🚗</span> انقر على سيارة لتحديدها ثم استخدم الأسهم لتحريكها</li>
+                <li><span>⬅️➡️</span> السيارات الأفقية تتحرك يميناً ويساراً فقط</li>
+                <li><span>⬆️⬇️</span> السيارات العمودية تتحرك لأعلى وأسفل فقط</li>
+                <li><span>⏱️</span> الوقت محدود! فكر بسرعة</li>
+                <li><span>💡</span> استخدم التلميحات عندما تواجه صعوبة</li>
+                <li><span>🏆</span> أقل عدد تحركات = نقاط أعلى!</li>
+            </ul>
+        </div>
+        
+        <footer class="footer">
+            <div class="footer-logo">Moumen ZwD</div>
+            <p class="footer-text">© 2023 جميع الحقوق محفوظة. تم تطوير اللعبة بـ HTML, CSS, JavaScript</p>
+        </footer>
+    </div>
+    
+    <div class="notification" id="notification">
+        <span id="notificationIcon">✅</span>
+        <span id="notificationText"></span>
+    </div>
+
+    <script>
+        const difficultyLevels = {
+            easy: { gridSize: 6, cars: 6, time: 120, hints: 5, movesMultiplier: 10 },
+            medium: { gridSize: 7, cars: 8, time: 90, hints: 3, movesMultiplier: 15 },
+            hard: { gridSize: 8, cars: 12, time: 75, hints: 2, movesMultiplier: 20 },
+            extreme: { gridSize: 9, cars: 16, time: 60, hints: 1, movesMultiplier: 25 }
+        };
+
+        const gameState = {
+            moves: 0,
+            level: 1,
+            timeLeft: 120,
+            hintsLeft: 3,
+            isPlaying: false,
+            soundEnabled: true,
+            currentDifficulty: 'easy',
+            selectedCar: null,
+            cars: [],
+            exitPosition: { row: 2, col: 5 },
+            timerInterval: null,
+            currentTheme: 'dark',
+            isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+        };
+
+        const elements = {
+            parkingGrid: document.getElementById('parkingGrid'),
+            moves: document.getElementById('moves'),
+            level: document.getElementById('level'),
+            time: document.getElementById('time'),
+            cars: document.getElementById('cars'),
+            hints: document.getElementById('hints'),
+            levelIndicator: document.getElementById('levelIndicator'),
+            difficultyBadge: document.getElementById('difficultyBadge'),
+            startBtn: document.getElementById('startBtn'),
+            resetBtn: document.getElementById('resetBtn'),
+            hintBtn: document.getElementById('hintBtn'),
+            themeBtn: document.getElementById('themeBtn'),
+            upBtn: document.getElementById('upBtn'),
+            leftBtn: document.getElementById('leftBtn'),
+            rightBtn: document.getElementById('rightBtn'),
+            downBtn: document.getElementById('downBtn'),
+            notification: document.getElementById('notification'),
+            notificationIcon: document.getElementById('notificationIcon'),
+            notificationText: document.getElementById('notificationText'),
+            soundToggle: document.getElementById('soundToggle'),
+            levelButtons: document.querySelectorAll('.level-btn')
+        };
+
+        function createSound(frequency, duration, type = 'sine') {
+            if (!gameState.soundEnabled) return;
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.type = type;
+                oscillator.frequency.value = frequency;
+                gainNode.gain.value = 0.2;
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (error) {
+                console.log('Web Audio API غير مدعوم');
+            }
+        }
+
+        const gameSounds = {
+            move: () => createSound(440, 0.1),
+            select: () => createSound(523.25, 0.1),
+            win: () => {
+                createSound(523.25, 0.2);
+                setTimeout(() => createSound(659.25, 0.2), 100);
+                setTimeout(() => createSound(783.99, 0.2), 200);
+                setTimeout(() => createSound(1046.50, 0.3), 300);
+            },
+            error: () => createSound(392, 0.3),
+            button: () => createSound(330, 0.1),
+            hint: () => createSound(784, 0.2)
+        };
+
+        function changeDifficulty(level) {
+            gameState.currentDifficulty = level;
+            elements.levelButtons.forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.dataset.level === level) btn.classList.add('selected');
+            });
+            
+            elements.difficultyBadge.className = 'difficulty-badge ' + level;
+            elements.difficultyBadge.textContent = 
+                level === 'easy' ? 'سهل' :
+                level === 'medium' ? 'متوسط' :
+                level === 'hard' ? 'صعب' : 'صعب جداً';
+            
+            elements.levelIndicator.textContent = `المستوى: 1 - ${elements.difficultyBadge.textContent}`;
+            gameSounds.select();
+            showNotification(`تم اختيار مستوى: ${elements.difficultyBadge.textContent}`, 'success');
+        }
+
+        function createParkingGrid() {
+            const difficulty = difficultyLevels[gameState.currentDifficulty];
+            const gridSize = difficulty.gridSize;
+            
+            elements.parkingGrid.innerHTML = '';
+            elements.parkingGrid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+            elements.parkingGrid.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+            elements.parkingGrid.style.width = `${gridSize * 60}px`;
+            elements.parkingGrid.style.height = `${gridSize * 60}px`;
+
+            for (let row = 0; row < gridSize; row++) {
+                for (let col = 0; col < gridSize; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    
+                    if (row === gameState.exitPosition.row && col === gridSize - 1) {
+                        cell.classList.add('exit');
+                    }
+                    
+                    elements.parkingGrid.appendChild(cell);
+                }
+            }
+        }
+
+        function createCars() {
+            const difficulty = difficultyLevels[gameState.currentDifficulty];
+            gameState.cars = [];
+            
+            const playerCar = {
+                id: 0,
+                type: 'player',
+                orientation: 'horizontal',
+                row: 2,
+                col: 0,
+                length: 2,
+                color: 'player'
+            };
+            gameState.cars.push(playerCar);
+
+            const usedPositions = new Set();
+            usedPositions.add('2,0');
+            usedPositions.add('2,1');
+
+            for (let i = 1; i < difficulty.cars; i++) {
+                const orientation = Math.random() > 0.5 ? 'horizontal' : 'vertical';
+                const length = Math.random() > 0.7 ? 3 : 2;
+                
+                let row, col;
+                let validPosition = false;
+                let attempts = 0;
+                
+                while (!validPosition && attempts < 100) {
+                    row = Math.floor(Math.random() * (difficulty.gridSize - (orientation === 'vertical' ? length - 1 : 0)));
+                    col = Math.floor(Math.random() * (difficulty.gridSize - (orientation === 'horizontal' ? length - 1 : 0)));
+                    
+                    validPosition = true;
+                    for (let j = 0; j < length; j++) {
+                        const posKey = orientation === 'horizontal' 
+                            ? `${row},${col + j}`
+                            : `${row + j},${col}`;
+                            
+                        if (usedPositions.has(posKey)) {
+                            validPosition = false;
+                            break;
+                        }
+                    }
+                    
+                    attempts++;
+                }
+                
+                if (validPosition) {
+                    for (let j = 0; j < length; j++) {
+                        const posKey = orientation === 'horizontal' 
+                            ? `${row},${col + j}`
+                            : `${row + j},${col}`;
+                        usedPositions.add(posKey);
+                    }
+                    
+                    gameState.cars.push({
+                        id: i,
+                        type: 'obstacle',
+                        orientation: orientation,
+                        row: row,
+                        col: col,
+                        length: length,
+                        color: orientation === 'horizontal' ? 'horizontal' : 'vertical'
+                    });
+                }
+            }
+            
+            renderCars();
+        }
+
+        function renderCars() {
+            document.querySelectorAll('.car').forEach(car => car.remove());
+            
+            const cellSize = 60;
+            const gridSize = difficultyLevels[gameState.currentDifficulty].gridSize;
+            
+            gameState.cars.forEach(car => {
+                const carElement = document.createElement('div');
+                carElement.className = `car ${car.color} ${car.orientation} wheels`;
+                carElement.dataset.id = car.id;
+                
+                if (car.orientation === 'horizontal') {
+                    carElement.style.width = `${car.length * cellSize - 8}px`;
+                    carElement.style.height = `${cellSize - 8}px`;
+                    carElement.style.top = `${car.row * cellSize + 4}px`;
+                    carElement.style.left = `${car.col * cellSize + 4}px`;
+                } else {
+                    carElement.style.width = `${cellSize - 8}px`;
+                    carElement.style.height = `${car.length * cellSize - 8}px`;
+                    carElement.style.top = `${car.row * cellSize + 4}px`;
+                    carElement.style.left = `${car.col * cellSize + 4}px`;
+                }
+                
+                if (car.id === gameState.selectedCar) {
+                    carElement.classList.add('selected');
+                }
+                
+                carElement.addEventListener('click', () => selectCar(car.id));
+                elements.parkingGrid.appendChild(carElement);
+            });
+        }
+
+        function selectCar(carId) {
+            gameState.selectedCar = carId;
+            renderCars();
+            gameSounds.select();
+        }
+
+        function moveCar(direction) {
+            if (gameState.selectedCar === null) return;
+            
+            const car = gameState.cars.find(c => c.id === gameState.selectedCar);
+            if (!car) return;
+            
+            let newRow = car.row;
+            let newCol = car.col;
+            let moved = false;
+            
+            if (car.orientation === 'horizontal') {
+                if (direction === 'left' && car.col > 0) {
+                    newCol = car.col - 1;
+                    moved = true;
+                } else if (direction === 'right' && car.col + car.length < difficultyLevels[gameState.currentDifficulty].gridSize) {
+                    newCol = car.col + 1;
+                    moved = true;
+                }
+            } else {
+                if (direction === 'up' && car.row > 0) {
+                    newRow = car.row - 1;
+                    moved = true;
+                } else if (direction === 'down' && car.row + car.length < difficultyLevels[gameState.currentDifficulty].gridSize) {
+                    newRow = car.row + 1;
+                    moved = true;
+                }
+            }
+            
+            if (moved && isMoveValid(car, newRow, newCol)) {
+                car.row = newRow;
+                car.col = newCol;
+                gameState.moves++;
+                elements.moves.textContent = gameState.moves;
+                renderCars();
+                gameSounds.move();
+                checkWinCondition();
+            } else {
+                gameSounds.error();
+            }
+        }
+
+        function isMoveValid(car, newRow, newCol) {
+            const gridSize = difficultyLevels[gameState.currentDifficulty].gridSize;
+            
+            if (car.orientation === 'horizontal') {
+                if (newCol < 0 || newCol + car.length > gridSize) return false;
+            } else {
+                if (newRow < 0 || newRow + car.length > gridSize) return false;
+            }
+            
+            for (const otherCar of gameState.cars) {
+                if (otherCar.id === car.id) continue;
+                
+                if (car.orientation === 'horizontal') {
+                    for (let i = 0; i < car.length; i++) {
+                        if (otherCar.orientation === 'horizontal') {
+                            if (newRow === otherCar.row && (newCol + i >= otherCar.col && newCol + i < otherCar.col + otherCar.length)) {
+                                return false;
+                            }
+                        } else {
+                            if (newCol + i === otherCar.col && (newRow >= otherCar.row && newRow < otherCar.row + otherCar.length)) {
+                                return false;
+                            }
+                        }
+                    }
+                } else {
+                    for (let i = 0; i < car.length; i++) {
+                        if (otherCar.orientation === 'horizontal') {
+                            if (newRow + i === otherCar.row && (newCol >= otherCar.col && newCol < otherCar.col + otherCar.length)) {
+                                return false;
+                            }
+                        } else {
+                            if (newCol === otherCar.col && (newRow + i >= otherCar.row && newRow + i < otherCar.row + otherCar.length)) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return true;
+        }
+
+        function checkWinCondition() {
+            const playerCar = gameState.cars.find(c => c.type === 'player');
+            const gridSize = difficultyLevels[gameState.currentDifficulty].gridSize;
+            
+            if (playerCar.orientation === 'horizontal' && playerCar.col + playerCar.length === gridSize) {
+                endGame(true);
+            }
+        }
+
+        function provideHint() {
+            if (gameState.hintsLeft <= 0) {
+                showNotification('لا يوجد تلميحات متبقية!', 'error');
+                return;
+            }
+            
+            gameState.hintsLeft--;
+            elements.hints.textContent = gameState.hintsLeft;
+            gameSounds.hint();
+            showNotification('جرب تحريك السيارات التي تعترض طريق السيارة الحمراء', 'success');
+        }
+
+        function gameLoop() {
+            if (!gameState.isPlaying) {
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+            requestAnimationFrame(gameLoop);
+        }
+
+        function setupEventListeners() {
+            elements.levelButtons.forEach(btn => {
+                btn.addEventListener('click', () => changeDifficulty(btn.dataset.level));
+            });
+
+            window.addEventListener('keydown', (e) => {
+                if (!gameState.isPlaying) return;
+                switch(e.key) {
+                    case 'ArrowLeft': moveCar('left'); break;
+                    case 'ArrowRight': moveCar('right'); break;
+                    case 'ArrowUp': moveCar('up'); break;
+                    case 'ArrowDown': moveCar('down'); break;
+                }
+            });
+
+            elements.upBtn.addEventListener('click', () => moveCar('up'));
+            elements.downBtn.addEventListener('click', () => moveCar('down'));
+            elements.leftBtn.addEventListener('click', () => moveCar('left'));
+            elements.rightBtn.addEventListener('click', () => moveCar('right'));
+
+            elements.startBtn.addEventListener('click', startGame);
+            elements.resetBtn.addEventListener('click', resetGame);
+            elements.hintBtn.addEventListener('click', provideHint);
+            elements.themeBtn.addEventListener('click', toggleTheme);
+            
+            elements.soundToggle.addEventListener('change', (e) => {
+                gameState.soundEnabled = e.target.checked;
+            });
+        }
+
+        function startGame() {
+            if (gameState.isPlaying) return;
+            
+            const difficulty = difficultyLevels[gameState.currentDifficulty];
+            gameState.isPlaying = true;
+            gameState.moves = 0;
+            gameState.level = 1;
+            gameState.timeLeft = difficulty.time;
+            gameState.hintsLeft = difficulty.hints;
+            
+            createParkingGrid();
+            createCars();
+            updateStats();
+            
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+            
+            gameState.timerInterval = setInterval(() => {
+                gameState.timeLeft--;
+                elements.time.textContent = gameState.timeLeft;
+                if (gameState.timeLeft <= 0) endGame(false);
+            }, 1000);
+            
+            gameSounds.move();
+            showNotification(`بدأت اللعبة! مستوى: ${elements.difficultyBadge.textContent}`, 'success');
+        }
+
+        function resetGame() {
+            clearInterval(gameState.timerInterval);
+            gameState.isPlaying = false;
+            gameState.selectedCar = null;
+            createCars();
+            updateStats();
+            showNotification('تم إعادة الضبط', 'success');
+        }
+
+        function updateStats() {
+            const difficulty = difficultyLevels[gameState.currentDifficulty];
+            elements.moves.textContent = gameState.moves;
+            elements.level.textContent = gameState.level;
+            elements.time.textContent = gameState.timeLeft;
+            elements.cars.textContent = difficulty.cars;
+            elements.hints.textContent = gameState.hintsLeft;
+            elements.levelIndicator.textContent = `المستوى: ${gameState.level} - ${elements.difficultyBadge.textContent}`;
+        }
+
+        function endGame(isWin) {
+            clearInterval(gameState.timerInterval);
+            gameState.isPlaying = false;
+            
+            if (isWin) {
+                const score = gameState.moves * difficultyLevels[gameState.currentDifficulty].movesMultiplier;
+                gameSounds.win();
+                showNotification(`مبروك! فزت بـ ${score} نقطة!`, 'success');
+            } else {
+                gameSounds.error();
+                showNotification('انتهى الوقت! حاول مرة أخرى.', 'error');
+            }
+        }
+
+        function toggleTheme() {
+            if (gameState.currentTheme === 'dark') {
+                document.documentElement.style.setProperty('--body-bg', '#f0f2f5');
+                document.documentElement.style.setProperty('--text-color', '#212529');
+                gameState.currentTheme = 'light';
+                elements.themeBtn.innerHTML = '<span>☀️</span> المظهر الداكن';
+            } else {
+                document.documentElement.style.setProperty('--body-bg', '#1a1a2e');
+                document.documentElement.style.setProperty('--text-color', '#e6e6e6');
+                gameState.currentTheme = 'dark';
+                elements.themeBtn.innerHTML = '<span>🌙</span> المظهر الفاتح';
+            }
+        }
+
+        function showNotification(message, type) {
+            elements.notification.className = 'notification';
+            elements.notificationText.textContent = message;
+            
+            if (type === 'success') {
+                elements.notificationIcon.textContent = '✅';
+                elements.notification.classList.add('success');
+            } else {
+                elements.notificationIcon.textContent = '❌';
+                elements.notification.classList.add('error');
+            }
+            
+            elements.notification.classList.add('show');
+            setTimeout(() => elements.notification.classList.remove('show'), 3000);
+        }
+
+        function initGame() {
+            setupEventListeners();
+            createParkingGrid();
+            createCars();
+            gameLoop();
+            updateStats();
+        }
+
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>
